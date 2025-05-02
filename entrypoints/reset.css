@@ -1,0 +1,16 @@
+/* Default: normal layout */
+html:not(.zen-mode) #columns #secondary {
+  visibility: visible !important;
+}
+
+html.zen-mode #columns #secondary {
+  visibility: hidden !important;
+}
+
+@media (min-width: 768px) {
+  html.zen-mode #columns #primary {
+    transform: translateX(-50%) !important;
+    position: relative !important;
+    left: 40% !important;
+  }
+}
