@@ -10,8 +10,9 @@ export default defineContentScript({
   async main() {
     console.log("Hello content.");
     // youtube chat feature start
+
     chrome.runtime.onMessage.addListener((message) => {
-      console.log("message reciebed")
+      console.log("message reciebed");
       if (message.type === "SEEK_TO_TIMESTAMP") {
         const video = document.querySelector("video");
         if (video) {
@@ -45,10 +46,9 @@ export default defineContentScript({
       mode: "normal" | "strict"
     ): boolean => {
       const thresholds = {
-        Porn: 0.55,
-        Hentai: 0.55,
+        Porn: 0.75,
+        Hentai: 0.75,
         Sexy: 0.1,
-        Drawing: 0.75,
       };
       const blurClasses =
         mode === "normal" ? ["Porn", "Hentai"] : ["Porn", "Hentai", "Sexy"];
@@ -258,7 +258,6 @@ export default defineContentScript({
     }
 
     async function injectZenUI() {
-      injectResetCSS();
       document.documentElement.classList.add("zen-mode");
       if (document.getElementById("zen-ui-root")) return;
       const container = document.createElement("div");
@@ -274,7 +273,7 @@ export default defineContentScript({
       if (existingRoot) existingRoot.remove();
     }
 
-    function modifyResultPage() {
+    async function modifyResultPage() {
       const selectors = [
         "ytd-reel-shelf-renderer",
         "dismissible",
@@ -292,6 +291,7 @@ export default defineContentScript({
         childList: true,
         subtree: true,
       });
+      await injectResetCSS();
     }
 
     // Zen Mode logic only for YouTube
@@ -301,14 +301,17 @@ export default defineContentScript({
       window.location.href.includes("/watch");
     if (isResults) {
       removeZenUI();
+
       modifyResultPage();
+
       return;
     }
 
     const { showZenUI } = await chrome.storage.local.get("showZenUI");
     const enabled = showZenUI ?? true;
-    if (enabled) injectZenUI();
-    else removeZenUI();
+    if (enabled) {
+      injectZenUI();
+    } else removeZenUI();
 
     chrome.storage.onChanged.addListener((changes, area) => {
       if (area === "local" && "showZenUI" in changes) {
